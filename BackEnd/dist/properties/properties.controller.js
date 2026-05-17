@@ -26,6 +26,12 @@ let PropertiesController = class PropertiesController {
         const hostId = req.user.userId;
         return this.propertiesService.create(createPropertyDto, hostId);
     }
+    findMyListings(req) {
+        return this.propertiesService.findByHost(req.user.userId);
+    }
+    remove(id, req) {
+        return this.propertiesService.remove(id, req.user.userId);
+    }
     findAll(query) {
         return this.propertiesService.findAll(query);
     }
@@ -43,6 +49,23 @@ __decorate([
     __metadata("design:paramtypes", [create_property_dto_1.CreatePropertyDto, Object]),
     __metadata("design:returntype", void 0)
 ], PropertiesController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)('my-listings'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PropertiesController.prototype, "findMyListings", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], PropertiesController.prototype, "remove", null);
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),

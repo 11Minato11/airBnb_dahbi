@@ -26,6 +26,9 @@ let ReviewsController = class ReviewsController {
         const reviewerId = req.user.userId;
         return this.reviewsService.create(createReviewDto, reviewerId);
     }
+    findMine(req) {
+        return this.reviewsService.findByReviewer(req.user.userId);
+    }
     findByProperty(propertyId) {
         return this.reviewsService.findByProperty(propertyId);
     }
@@ -40,6 +43,14 @@ __decorate([
     __metadata("design:paramtypes", [create_review_dto_1.CreateReviewDto, Object]),
     __metadata("design:returntype", void 0)
 ], ReviewsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Get)('mine'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ReviewsController.prototype, "findMine", null);
 __decorate([
     (0, common_1.Get)('property/:propertyId'),
     __param(0, (0, common_1.Param)('propertyId')),

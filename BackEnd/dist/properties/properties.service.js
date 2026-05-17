@@ -49,10 +49,20 @@ let PropertiesService = class PropertiesService {
     }
     async findOne(id) {
         const property = await this.propertyModel.findById(id).exec();
-        if (!property) {
+        if (!property)
             throw new common_1.NotFoundException(`Property with ID ${id} not found`);
-        }
         return property;
+    }
+    async findByHost(hostId) {
+        return this.propertyModel.find({ hostId }).exec();
+    }
+    async remove(id, hostId) {
+        const property = await this.findOne(id);
+        if (property.hostId.toString() !== hostId) {
+            throw new common_1.NotFoundException('Vous n\'êtes pas le propriétaire de ce logement.');
+        }
+        await this.propertyModel.findByIdAndDelete(id).exec();
+        return { deleted: true };
     }
 };
 exports.PropertiesService = PropertiesService;

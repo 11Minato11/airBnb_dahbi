@@ -1,0 +1,25 @@
+{
+  "name": "airbemi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:all": "concurrently \"npm run start:dev --prefix BackEnd\" \"npm start --prefix FrontEnd\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IvanMolBayd/AirbEMIV2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/IvanMolBayd/AirbEMIV2/issues"
+  },
+  "homepage": "https://github.com/IvanMolBayd/AirbEMIV2#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

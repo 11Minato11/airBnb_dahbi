@@ -1,0 +1,121 @@
+<!-- Barre de catégories sticky -->
+<div class="sticky top-20 z-40 bg-white border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-8 overflow-x-auto py-4 scrollbar-hide">
+      <!-- "Tout" -->
+      <button
+        (click)="setCategory(null!)"
+        class="flex flex-col items-center gap-1 min-w-fit group transition-all duration-200 pb-2 border-b-2"
+        [class.border-gray-900]="activeCategory() === null"
+        [class.border-transparent]="activeCategory() !== null"
+      >
+        <span class="text-2xl">🏠</span>
+        <span class="text-xs font-medium whitespace-nowrap"
+          [class.text-gray-900]="activeCategory() === null"
+          [class.text-gray-500]="activeCategory() !== null"
+        >Tout</span>
+      </button>
+
+      <button
+        *ngFor="let cat of categories"
+        (click)="setCategory(cat.label)"
+        class="flex flex-col items-center gap-1 min-w-fit group transition-all duration-200 pb-2 border-b-2"
+        [class.border-gray-900]="activeCategory() === cat.label"
+        [class.border-transparent]="activeCategory() !== cat.label"
+      >
+        <span class="text-2xl">{{ cat.icon }}</span>
+        <span class="text-xs font-medium whitespace-nowrap"
+          [class.text-gray-900]="activeCategory() === cat.label"
+          [class.text-gray-500]="activeCategory() !== cat.label"
+        >{{ cat.label }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Contenu principal -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- Skeleton loader -->
+  <div *ngIf="isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div *ngFor="let _ of [1,2,3,4,5,6,7,8]" class="animate-pulse">
+      <div class="bg-gray-200 rounded-2xl aspect-square mb-3"></div>
+      <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+      <div class="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+      <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+    </div>
+  </div>
+
+  <!-- État vide (filtre sans résultats) -->
+  <div *ngIf="!isLoading && properties.length === 0" class="flex flex-col items-center justify-center py-24 text-center">
+    <span class="text-6xl mb-4">🔍</span>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Aucun logement pour cette catégorie</h3>
+    <p class="text-gray-500 max-w-sm mb-6">Essayez une autre catégorie ou revenez à la liste complète.</p>
+    <button (click)="setCategory(null!)" class="bg-brand text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-rose-600 transition">
+      Voir tous les logements
+    </button>
+  </div>
+
+  <!-- Grille de logements -->
+  <div *ngIf="!isLoading && properties.length > 0"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+
+    <div *ngFor="let property of properties"
+      (click)="goToProperty(property._id)"
+      class="group cursor-pointer">
+
+      <!-- Image container -->
+      <div class="relative w-full aspect-square rounded-2xl overflow-hidden mb-3 bg-gray-100">
+        <img
+          [src]="property.imageUrl || 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&q=80'"
+          [alt]="property.title"
+          class="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+          loading="lazy"
+        >
+        <!-- Bouton Favori -->
+        <button
+          (click)="toggleFavorite($event, property._id)"
+          class="absolute top-3 right-3 p-1.5 rounded-full transition-transform hover:scale-125 active:scale-95"
+          [attr.aria-label]="'Ajouter aux favoris'"
+        >
+          <svg class="w-6 h-6 transition-all duration-200 drop-shadow-sm"
+            viewBox="0 0 32 32"
+            [attr.fill]="isFavorite(property._id) ? '#FF385C' : 'rgba(0,0,0,0.4)'"
+            stroke="white"
+            stroke-width="2"
+          >
+            <path d="M16 28c-8-4.6-13-10.7-13-16.2C3 7.1 6.3 4 10.5 4c2.3 0 4.6 1.4 5.5 3.3.9-1.9 3.2-3.3 5.5-3.3C25.7 4 29 7.1 29 11.8 29 17.3 24 23.4 16 28z"/>
+          </svg>
+        </button>
+
+        <!-- Badge prix sur l'image -->
+        <div class="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-bold text-gray-900 shadow-sm">
+          {{ formatPrice(property.pricePerNight) }} DH / nuit
+        </div>
+      </div>
+
+      <!-- Infos logement -->
+      <div class="space-y-0.5">
+        <div class="flex justify-between items-start">
+          <h3 class="font-semibold text-gray-900 leading-tight line-clamp-1 flex-1 pr-2">
+            {{ property.address.city }}, {{ property.address.country }}
+          </h3>
+          <!-- Note fictive -->
+          <div class="flex items-center gap-0.5 shrink-0">
+            <svg class="w-3.5 h-3.5 text-gray-900" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            <span class="text-sm font-medium text-gray-900">{{ property.rating || '4.90' }}</span>
+          </div>
+        </div>
+        <p class="text-gray-500 text-sm line-clamp-1">{{ property.title }}</p>
+        <p class="text-gray-400 text-sm">{{ property.maxGuests }} voyageurs max.</p>
+        <p class="text-gray-900 text-sm pt-1">
+          <span class="font-bold">{{ formatPrice(property.pricePerNight) }} DH</span>
+          <span class="text-gray-500"> / nuit</span>
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>

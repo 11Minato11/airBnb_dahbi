@@ -19,4 +19,8 @@ export class ReviewsService {
   async findByProperty(propertyId: string): Promise<ReviewDocument[]> {
     return this.reviewModel.find({ propertyId }).populate('reviewerId', 'firstName lastName').exec();
   }
+
+  async findByReviewer(reviewerId: string): Promise<ReviewDocument[]> {
+    return this.reviewModel.find({ reviewerId }).populate('propertyId', 'title address imageUrl').exec();
+  }
 }

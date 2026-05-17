@@ -32,8 +32,9 @@ let AuthController = class AuthController {
     }
     async googleAuth(req) {
     }
-    async googleAuthRedirect(req) {
-        return this.authService.googleLogin(req);
+    async googleAuthRedirect(req, res) {
+        const jwt = await this.authService.googleLogin(req);
+        res.redirect(`http://localhost:4200/login?token=${jwt.access_token}`);
     }
     getProfile(req) {
         return req.user;
@@ -67,8 +68,9 @@ __decorate([
     (0, common_1.Get)('google/callback'),
     (0, common_1.UseGuards)(google_oauth_guard_1.GoogleOauthGuard),
     __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleAuthRedirect", null);
 __decorate([

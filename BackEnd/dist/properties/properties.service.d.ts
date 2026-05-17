@@ -7,4 +7,8 @@ export declare class PropertiesService {
     create(createPropertyDto: CreatePropertyDto, hostId: string): Promise<PropertyDocument>;
     findAll(query: any): Promise<PropertyDocument[]>;
     findOne(id: string): Promise<PropertyDocument>;
+    findByHost(hostId: string): Promise<PropertyDocument[]>;
+    remove(id: string, hostId: string): Promise<{
+        deleted: boolean;
+    }>;
 }

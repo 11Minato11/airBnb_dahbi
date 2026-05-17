@@ -14,6 +14,12 @@ export class ReviewsController {
     return this.reviewsService.create(createReviewDto, reviewerId);
   }
 
+  @Get('mine')
+  @UseGuards(JwtAuthGuard)
+  findMine(@Request() req: any) {
+    return this.reviewsService.findByReviewer(req.user.userId);
+  }
+
   @Get('property/:propertyId')
   findByProperty(@Param('propertyId') propertyId: string) {
     return this.reviewsService.findByProperty(propertyId);

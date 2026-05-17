@@ -32,6 +32,9 @@ let ReviewsService = class ReviewsService {
     async findByProperty(propertyId) {
         return this.reviewModel.find({ propertyId }).populate('reviewerId', 'firstName lastName').exec();
     }
+    async findByReviewer(reviewerId) {
+        return this.reviewModel.find({ reviewerId }).populate('propertyId', 'title address imageUrl').exec();
+    }
 };
 exports.ReviewsService = ReviewsService;
 exports.ReviewsService = ReviewsService = __decorate([

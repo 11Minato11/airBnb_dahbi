@@ -10,7 +10,7 @@ export declare class CreatePropertyDto {
     description: string;
     pricePerNight: number;
     maxGuests: number;
-    location: LocationDto;
+    location?: LocationDto;
     address: AddressDto;
     amenities?: string[];
     isActive?: boolean;

@@ -81,7 +81,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Property.prototype, "isActive", void 0);
 exports.Property = Property = __decorate([
-    (0, mongoose_1.Schema)({ timestamps: true })
+    (0, mongoose_1.Schema)({ timestamps: true, strict: false })
 ], Property);
 exports.PropertySchema = mongoose_1.SchemaFactory.createForClass(Property);
 exports.PropertySchema.index({ location: '2dsphere' });

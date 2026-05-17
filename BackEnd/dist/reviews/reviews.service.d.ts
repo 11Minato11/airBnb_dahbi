@@ -6,4 +6,5 @@ export declare class ReviewsService {
     constructor(reviewModel: Model<ReviewDocument>);
     create(createReviewDto: CreateReviewDto, reviewerId: string): Promise<ReviewDocument>;
     findByProperty(propertyId: string): Promise<ReviewDocument[]>;
+    findByReviewer(reviewerId: string): Promise<ReviewDocument[]>;
 }

@@ -15,6 +15,8 @@ export class RegisterComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  errorMessage: string | null = null;
+
   registerForm = this.fb.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
@@ -24,10 +26,24 @@ export class RegisterComponent {
   });
 
   onSubmit() {
+    this.errorMessage = null;
     if (this.registerForm.valid) {
-      this.authService.register(this.registerForm.value).subscribe({
+      const v = this.registerForm.value;
+      this.authService.register({
+        firstName: v.firstName!,
+        lastName: v.lastName!,
+        email: v.email!,
+        password: v.password!
+      }).subscribe({
         next: () => this.router.navigate(['/login']),
-        error: (err: any) => console.error('Registration error', err)
+        error: (err: any) => {
+          console.error('Registration error', err);
+          if (err.status === 409) {
+            this.errorMessage = 'Un utilisateur avec cette adresse email existe déjà.';
+          } else {
+            this.errorMessage = 'Une erreur est survenue lors de l\'inscription.';
+          }
+        }
       });
     }
   }

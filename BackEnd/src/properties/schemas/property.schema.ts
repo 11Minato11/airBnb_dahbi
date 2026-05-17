@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose';
 
 export type PropertyDocument = Property & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, strict: false })
 export class Property {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   hostId: string;

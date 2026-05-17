@@ -1,4 +1,5 @@
-import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -33,8 +34,9 @@ export class AuthController {
   // Callback de Google après authentification
   @Get('google/callback')
   @UseGuards(GoogleOauthGuard)
-  async googleAuthRedirect(@Request() req: any) {
-    return this.authService.googleLogin(req);
+  async googleAuthRedirect(@Request() req: any, @Res() res: Response) {
+    const jwt = await this.authService.googleLogin(req);
+    res.redirect(`http://localhost:4200/login?token=${jwt.access_token}`);
   }
 
   // Route protégée pour obtenir le profil

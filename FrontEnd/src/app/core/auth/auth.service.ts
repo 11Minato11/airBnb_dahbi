@@ -1,40 +1,54 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'http://localhost:3000/auth';
+  private readonly API = 'http://localhost:3000/auth';
+  private readonly TOKEN_KEY = 'airbemi_token';
+  private readonly USER_KEY = 'airbemi_user';
 
-  login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
-      tap((response: any) => {
-        if (response && response.access_token) {
-          localStorage.setItem('token', response.access_token);
-        }
-      })
-    );
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.API}/login`, { email, password });
   }
 
-  register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userData);
+  register(data: { firstName: string; lastName: string; email: string; password: string }): Observable<any> {
+    return this.http.post<any>(`${this.API}/register`, data);
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    this.router.navigate(['/login']);
+  setToken(token: string): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+  }
+
+  setUser(user: any): void {
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  clearToken(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+  }
+
+  getUser(): any {
+    const u = localStorage.getItem(this.USER_KEY);
+    if (!u) return null;
+    try { return JSON.parse(u); } catch { return null; }
   }
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  }
+
+  logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+    this.router.navigate(['/login']);
   }
 }

@@ -8,6 +8,10 @@
         Rejoignez <span class="font-bold text-brand">AirBEMI</span>
       </p>
     </div>
+
+    <div *ngIf="errorMessage" class="mt-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+      {{ errorMessage }}
+    </div>
     
     <form class="mt-8 space-y-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="grid grid-cols-2 gap-4">

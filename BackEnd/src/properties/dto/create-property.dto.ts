@@ -35,8 +35,8 @@ export class CreatePropertyDto {
   maxGuests: number;
 
   @IsObject()
-  @IsNotEmpty()
-  location: LocationDto;
+  @IsOptional()
+  location?: LocationDto;
 
   @IsObject()
   @IsNotEmpty()

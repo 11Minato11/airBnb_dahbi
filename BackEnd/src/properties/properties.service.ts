@@ -44,9 +44,20 @@ export class PropertiesService {
 
   async findOne(id: string): Promise<PropertyDocument> {
     const property = await this.propertyModel.findById(id).exec();
-    if (!property) {
-      throw new NotFoundException(`Property with ID ${id} not found`);
-    }
+    if (!property) throw new NotFoundException(`Property with ID ${id} not found`);
     return property;
+  }
+
+  async findByHost(hostId: string): Promise<PropertyDocument[]> {
+    return this.propertyModel.find({ hostId }).exec();
+  }
+
+  async remove(id: string, hostId: string): Promise<{ deleted: boolean }> {
+    const property = await this.findOne(id);
+    if (property.hostId.toString() !== hostId) {
+      throw new NotFoundException('Vous n\'êtes pas le propriétaire de ce logement.');
+    }
+    await this.propertyModel.findByIdAndDelete(id).exec();
+    return { deleted: true };
   }
 }
