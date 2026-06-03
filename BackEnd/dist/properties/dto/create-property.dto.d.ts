@@ -13,6 +13,7 @@ export declare class CreatePropertyDto {
     location?: LocationDto;
     address: AddressDto;
     amenities?: string[];
+    imageUrl?: string;
     isActive?: boolean;
 }
 export {};

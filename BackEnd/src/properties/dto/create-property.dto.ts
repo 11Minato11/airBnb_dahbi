@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, IsUrl } from 'class-validator';
 
 class LocationDto {
   @IsArray()
@@ -46,6 +46,10 @@ export class CreatePropertyDto {
   @IsOptional()
   @IsString({ each: true })
   amenities?: string[];
+
+  @IsUrl()
+  @IsOptional()
+  imageUrl?: string;
 
   @IsBoolean()
   @IsOptional()

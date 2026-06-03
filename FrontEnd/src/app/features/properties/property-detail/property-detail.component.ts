@@ -51,6 +51,7 @@ export class PropertyDetailComponent implements OnInit {
     this.propertyService.getProperty(id).subscribe({
       next: (data) => {
         this.property.set(data);
+        this.loadFavoriteState(data._id);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -67,7 +68,26 @@ export class PropertyDetailComponent implements OnInit {
   }
 
   toggleFavorite() {
-    this.isFavorite.set(!this.isFavorite());
+    const prop = this.property();
+    if (!prop) return;
+
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    this.userService.toggleLike(prop._id).subscribe({
+      next: (result) => {
+        this.isFavorite.set(result.liked);
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+          return;
+        }
+        console.error('Erreur sauvegarde favori:', err);
+      }
+    });
   }
 
   formatPrice(price: number): string {
@@ -90,6 +110,22 @@ export class PropertyDetailComponent implements OnInit {
     const prop = this.property();
     if (!prop || this.nights <= 0) return 0;
     return Math.round(prop.pricePerNight * this.nights * 1.14);
+  }
+
+  private loadFavoriteState(propertyId: string) {
+    if (!this.authService.isAuthenticated()) {
+      this.isFavorite.set(false);
+      return;
+    }
+
+    this.userService.getMyLikedPropertyIds().subscribe({
+      next: (propertyIds) => {
+        this.isFavorite.set(propertyIds.includes(propertyId));
+      },
+      error: () => {
+        this.isFavorite.set(false);
+      }
+    });
   }
 
   contactHost() {

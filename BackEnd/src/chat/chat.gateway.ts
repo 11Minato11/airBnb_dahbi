@@ -33,7 +33,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Subscribe to Redis channel for this user
     const channel = `chat:user:${userId}`;
-    this.redisService.subscriber.subscribe(channel, (err, count) => {
+    this.redisService.subscriber.subscribe(channel, (err: Error | null, count: number) => {
       if (err) {
         this.logger.error(`Error subscribing to channel ${channel}:`, err);
       } else {
@@ -42,7 +42,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     // Listen for messages on this channel
-    this.redisService.subscriber.on('message', (subscribedChannel, message) => {
+    this.redisService.subscriber.on('message', (subscribedChannel: string, message: string) => {
       if (subscribedChannel === channel) {
         try {
           const parsedMessage = JSON.parse(message);

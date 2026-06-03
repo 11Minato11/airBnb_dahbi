@@ -24,6 +24,7 @@ let Property = class Property {
     location;
     address;
     amenities;
+    imageUrl;
     isActive;
 };
 exports.Property = Property;
@@ -76,6 +77,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: [String], default: [] }),
     __metadata("design:type", Array)
 ], Property.prototype, "amenities", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: false }),
+    __metadata("design:type", String)
+], Property.prototype, "imageUrl", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true, default: true }),
     __metadata("design:type", Boolean)

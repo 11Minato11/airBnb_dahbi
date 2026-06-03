@@ -15,6 +15,7 @@ export declare class Property {
         country: string;
     };
     amenities: string[];
+    imageUrl?: string;
     isActive: boolean;
 }
 export declare const PropertySchema: mongoose.Schema<Property, mongoose.Model<Property, any, any, any, any, any, Property>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, Property, mongoose.Document<unknown, {}, Property, {
@@ -96,6 +97,15 @@ export declare const PropertySchema: mongoose.Schema<Property, mongoose.Model<Pr
         id: string;
     }> | undefined;
     amenities?: mongoose.SchemaDefinitionProperty<string[], Property, mongoose.Document<unknown, {}, Property, {
+        id: string;
+    }, mongoose.DefaultSchemaOptions> & Omit<Property & {
+        _id: mongoose.Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    imageUrl?: mongoose.SchemaDefinitionProperty<string | undefined, Property, mongoose.Document<unknown, {}, Property, {
         id: string;
     }, mongoose.DefaultSchemaOptions> & Omit<Property & {
         _id: mongoose.Types.ObjectId;

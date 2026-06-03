@@ -42,6 +42,7 @@ class CreatePropertyDto {
     location;
     address;
     amenities;
+    imageUrl;
     isActive;
 }
 exports.CreatePropertyDto = CreatePropertyDto;
@@ -81,6 +82,11 @@ __decorate([
     (0, class_validator_1.IsString)({ each: true }),
     __metadata("design:type", Array)
 ], CreatePropertyDto.prototype, "amenities", void 0);
+__decorate([
+    (0, class_validator_1.IsUrl)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], CreatePropertyDto.prototype, "imageUrl", void 0);
 __decorate([
     (0, class_validator_1.IsBoolean)(),
     (0, class_validator_1.IsOptional)(),

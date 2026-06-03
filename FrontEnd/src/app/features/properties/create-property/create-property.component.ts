@@ -23,6 +23,7 @@ export class CreatePropertyComponent {
     description: ['', [Validators.required, Validators.minLength(20)]],
     pricePerNight: [null, [Validators.required, Validators.min(1)]],
     maxGuests: [null, [Validators.required, Validators.min(1)]],
+    imageUrl: [''],
     city: ['', Validators.required],
     country: ['', Validators.required],
   });
@@ -38,6 +39,7 @@ export class CreatePropertyComponent {
       description: formValue.description,
       pricePerNight: Number(formValue.pricePerNight),
       maxGuests: Number(formValue.maxGuests),
+      imageUrl: formValue.imageUrl || undefined,
       address: {
         city: formValue.city,
         country: formValue.country,

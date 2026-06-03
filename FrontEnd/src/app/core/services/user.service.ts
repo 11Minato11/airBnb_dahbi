@@ -21,6 +21,11 @@ export interface Review {
   createdAt: string;
 }
 
+export interface LikeToggleResult {
+  liked: boolean;
+  propertyId: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private http = inject(HttpClient);
@@ -41,6 +46,18 @@ export class UserService {
 
   getMyReviews(): Observable<Review[]> {
     return this.http.get<Review[]>(`${this.BASE}/reviews/mine`);
+  }
+
+  getMyLikedPropertyIds(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.BASE}/likes/me`, {
+      headers: new HttpHeaders(this.authService.getAuthHeaders()),
+    });
+  }
+
+  toggleLike(propertyId: string): Observable<LikeToggleResult> {
+    return this.http.post<LikeToggleResult>(`${this.BASE}/likes/${propertyId}/toggle`, {}, {
+      headers: new HttpHeaders(this.authService.getAuthHeaders()),
+    });
   }
 
   createReservation(data: { propertyId: string; checkInDate: string; checkOutDate: string; totalPrice: number }): Observable<any> {

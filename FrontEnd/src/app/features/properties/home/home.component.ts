@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PropertyService, Property } from '../../../core/services/property.service';
+import { AuthService } from '../../../core/auth/auth.service';
+import { UserService } from '../../../core/services/user.service';
 
 const CATEGORIES = [
   { icon: '🏰', label: 'Riads', keywords: ['Riad', 'riad', 'Palais', 'dar', 'Dar'] },
@@ -22,6 +24,8 @@ const CATEGORIES = [
 })
 export class HomeComponent implements OnInit {
   private propertyService = inject(PropertyService);
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -72,6 +76,7 @@ export class HomeComponent implements OnInit {
         next: (data) => {
           this.allProperties.set(data);
           this.isLoading.set(false);
+          this.loadLikedProperties();
         },
         error: (err) => {
           console.error('Erreur chargement logements:', err);
@@ -85,9 +90,29 @@ export class HomeComponent implements OnInit {
   toggleFavorite(event: Event, id: string) {
     event.stopPropagation();
     event.preventDefault();
-    const current = new Set(this.favorites());
-    if (current.has(id)) { current.delete(id); } else { current.add(id); }
-    this.favorites.set(current);
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    this.userService.toggleLike(id).subscribe({
+      next: (result) => {
+        const current = new Set(this.favorites());
+        if (result.liked) {
+          current.add(id);
+        } else {
+          current.delete(id);
+        }
+        this.favorites.set(current);
+      },
+      error: (err) => {
+        if (err.status === 401) {
+          this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+          return;
+        }
+        console.error('Erreur sauvegarde favori:', err);
+      }
+    });
   }
 
   isFavorite(id: string): boolean { return this.favorites().has(id); }
@@ -111,6 +136,22 @@ export class HomeComponent implements OnInit {
 
   formatPrice(price: number): string {
     return new Intl.NumberFormat('fr-MA').format(price);
+  }
+
+  private loadLikedProperties() {
+    if (!this.authService.isAuthenticated()) {
+      this.favorites.set(new Set());
+      return;
+    }
+
+    this.userService.getMyLikedPropertyIds().subscribe({
+      next: (propertyIds) => {
+        this.favorites.set(new Set(propertyIds));
+      },
+      error: () => {
+        this.favorites.set(new Set());
+      }
+    });
   }
 
   get properties(): Property[] { return this.filteredProperties(); }

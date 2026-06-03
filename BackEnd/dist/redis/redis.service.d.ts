@@ -1,8 +1,7 @@
-import Redis from 'ioredis';
 export declare class RedisService {
     private readonly logger;
-    client: Redis;
-    subscriber: Redis;
+    client: any;
+    subscriber: any;
     constructor();
     get(key: string): Promise<any>;
     set(key: string, value: any, ttlSeconds?: number): Promise<void>;
@@ -25,4 +24,5 @@ export declare class RedisService {
     removeUnread(toUserId: string, fromUserId: string): Promise<void>;
     getUnread(toUserId: string): Promise<Record<string, number>>;
     onModuleDestroy(): Promise<void>;
+    private useInMemoryFallback;
 }

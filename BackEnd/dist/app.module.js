@@ -57,6 +57,7 @@ const redis_module_1 = require("./redis/redis.module");
 const bookings_module_1 = require("./bookings/bookings.module");
 const chat_module_1 = require("./chat/chat.module");
 const test_module_1 = require("./test/test.module");
+const user_likes_module_1 = require("./user-likes/user-likes.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -64,13 +65,24 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
-            mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/airbemi_db'),
+            mongoose_1.MongooseModule.forRoot(process.env.MONGO_URI || 'mongodb://localhost:27017/airbemi_db', {
+                lazyConnection: true,
+                retryAttempts: 1,
+                retryDelay: 1000,
+                serverSelectionTimeoutMS: 5000,
+                connectTimeoutMS: 5000,
+                socketTimeoutMS: 5000,
+            }),
             cache_manager_1.CacheModule.registerAsync({
                 isGlobal: true,
                 useFactory: () => ({
-                    store: redisStore,
-                    url: process.env.REDIS_URL || 'redis://localhost:6379',
                     ttl: 300,
+                    ...(process.env.REDIS_URL?.trim()
+                        ? {
+                            store: redisStore,
+                            url: process.env.REDIS_URL.trim(),
+                        }
+                        : {}),
                 }),
             }),
             redis_module_1.RedisModule,
@@ -82,6 +94,7 @@ exports.AppModule = AppModule = __decorate([
             reviews_module_1.ReviewsModule,
             messages_module_1.MessagesModule,
             chat_module_1.ChatModule,
+            user_likes_module_1.UserLikesModule,
             test_module_1.TestModule,
         ],
         controllers: [app_controller_1.AppController],

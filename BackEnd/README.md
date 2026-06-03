@@ -31,6 +31,17 @@
 $ npm install
 ```
 
+Create a local `.env` from `.env.example` and fill in your database and auth settings:
+
+```bash
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/airbemi_db
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=change-me
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
+
 ## Compile and run the project
 
 ```bash

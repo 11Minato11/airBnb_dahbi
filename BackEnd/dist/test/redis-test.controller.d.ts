@@ -7,7 +7,7 @@ export declare class RedisTestController {
     ping(): Promise<{
         status: string;
         message: string;
-        result: "PONG";
+        result: any;
         error?: undefined;
     } | {
         status: string;
@@ -151,8 +151,8 @@ export declare class RedisTestController {
     }>;
     getAllKeys(): Promise<{
         status: string;
-        keysCount: number;
-        keys: string[];
+        keysCount: any;
+        keys: any;
         message?: undefined;
     } | {
         status: string;

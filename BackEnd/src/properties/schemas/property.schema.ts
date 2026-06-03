@@ -52,6 +52,9 @@ export class Property {
   @Prop({ type: [String], default: [] })
   amenities: string[];
 
+  @Prop({ required: false })
+  imageUrl?: string;
+
   @Prop({ required: true, default: true })
   isActive: boolean;
 }
