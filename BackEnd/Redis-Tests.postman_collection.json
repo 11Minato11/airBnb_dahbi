@@ -1,0 +1,414 @@
+{
+  "info": {
+    "name": "Redis Test Suite - AirBEMI",
+    "description": "Test endpoints for Redis functionality",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. REDIS CONNECTION",
+      "item": [
+        {
+          "name": "Ping Redis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/ping",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "ping"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. GENERIC SET/GET/DELETE",
+      "item": [
+        {
+          "name": "Set Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"test:demo\",\n  \"value\": \"Hello Redis\",\n  \"ttl\": 300\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/set",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "set"]
+            }
+          }
+        },
+        {
+          "name": "Get Key",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/get/test:demo",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "get", "test:demo"]
+            }
+          }
+        },
+        {
+          "name": "Delete Key",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/delete/test:demo",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "delete", "test:demo"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. CALENDAR/BOOKING",
+      "item": [
+        {
+          "name": "Add Booked Dates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"dates\": [\"2026-06-10\", \"2026-06-11\", \"2026-06-12\"]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/calendar/add",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "calendar", "add"]
+            }
+          }
+        },
+        {
+          "name": "Check Availability (Booked - Should be false)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"dates\": [\"2026-06-10\", \"2026-06-11\"]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/calendar/check",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "calendar", "check"]
+            }
+          }
+        },
+        {
+          "name": "Check Availability (Free - Should be true)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"dates\": [\"2026-06-20\", \"2026-06-21\"]\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/calendar/check",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "calendar", "check"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. LOCK (Anti Double-booking)",
+      "item": [
+        {
+          "name": "Acquire Lock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"ttl\": 600\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/lock/acquire",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "lock", "acquire"]
+            }
+          }
+        },
+        {
+          "name": "Try Acquire Same Lock (Should fail)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"ttl\": 600\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/lock/acquire",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "lock", "acquire"]
+            }
+          }
+        },
+        {
+          "name": "Release Lock",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/lock/release",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "lock", "release"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. RATING",
+      "item": [
+        {
+          "name": "Set Rating",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"rating\": 4.8,\n  \"count\": 25\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/rating/set",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "rating", "set"]
+            }
+          }
+        },
+        {
+          "name": "Get Rating",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/rating/get/prop123",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "rating", "get", "prop123"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. REVIEWS",
+      "item": [
+        {
+          "name": "Add Review 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"review\": {\n    \"userId\": \"user1\",\n    \"rating\": 5,\n    \"comment\": \"Excellent property!\",\n    \"createdAt\": \"2026-06-03\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/review/add",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "review", "add"]
+            }
+          }
+        },
+        {
+          "name": "Add Review 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"prop123\",\n  \"review\": {\n    \"userId\": \"user2\",\n    \"rating\": 4,\n    \"comment\": \"Very good\",\n    \"createdAt\": \"2026-06-02\"\n  }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/review/add",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "review", "add"]
+            }
+          }
+        },
+        {
+          "name": "Get Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/review/list/prop123",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "review", "list", "prop123"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. UNREAD MESSAGES",
+      "item": [
+        {
+          "name": "Increment Unread",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toUserId\": \"user1\",\n  \"fromUserId\": \"user2\",\n  \"count\": 3\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/test/redis/unread/increment",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "unread", "increment"]
+            }
+          }
+        },
+        {
+          "name": "Get Unread Counts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/unread/get/user1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "unread", "get", "user1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. UTILITIES",
+      "item": [
+        {
+          "name": "Show All Redis Keys",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/keys/all",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "keys", "all"]
+            }
+          }
+        },
+        {
+          "name": "Flush All Keys (⚠️ USE CAUTION)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/test/redis/keys/flush",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["test", "redis", "keys", "flush"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

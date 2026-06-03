@@ -18,35 +18,21 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const reservation_schema_1 = require("./schemas/reservation.schema");
 const properties_service_1 = require("../properties/properties.service");
+const bookings_service_1 = require("../bookings/bookings.service");
 let ReservationsService = class ReservationsService {
     reservationModel;
     propertiesService;
-    constructor(reservationModel, propertiesService) {
+    bookingsService;
+    constructor(reservationModel, propertiesService, bookingsService) {
         this.reservationModel = reservationModel;
         this.propertiesService = propertiesService;
+        this.bookingsService = bookingsService;
     }
     async create(createReservationDto, guestId) {
-        const { propertyId, checkInDate, checkOutDate } = createReservationDto;
+        const { propertyId, checkInDate, checkOutDate, totalPrice } = createReservationDto;
         await this.propertiesService.findOne(propertyId);
-        const checkIn = new Date(checkInDate);
-        const checkOut = new Date(checkOutDate);
-        const overlappingReservation = await this.reservationModel.findOne({
-            propertyId,
-            status: 'confirmed',
-            $or: [
-                { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } },
-            ],
-        }).exec();
-        if (overlappingReservation) {
-            throw new common_1.ConflictException('Le logement est indisponible pour ces dates.');
-        }
-        const newReservation = new this.reservationModel({
-            ...createReservationDto,
-            guestId,
-            checkInDate: checkIn,
-            checkOutDate: checkOut,
-        });
-        return newReservation.save();
+        const booking = await this.bookingsService.createBooking(propertyId, guestId, new Date(checkInDate), new Date(checkOutDate), totalPrice || 0);
+        return booking;
     }
     async findMyTrips(guestId) {
         return this.reservationModel.find({ guestId }).populate('propertyId').exec();
@@ -57,6 +43,7 @@ exports.ReservationsService = ReservationsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(reservation_schema_1.Reservation.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        properties_service_1.PropertiesService])
+        properties_service_1.PropertiesService,
+        bookings_service_1.BookingsService])
 ], ReservationsService);
 //# sourceMappingURL=reservations.service.js.map

@@ -17,22 +17,72 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const property_schema_1 = require("./schemas/property.schema");
+const reservation_schema_1 = require("../reservations/schemas/reservation.schema");
+const redis_service_1 = require("../redis/redis.service");
 let PropertiesService = class PropertiesService {
     propertyModel;
-    constructor(propertyModel) {
+    reservationModel;
+    redisService;
+    constructor(propertyModel, reservationModel, redisService) {
         this.propertyModel = propertyModel;
+        this.reservationModel = reservationModel;
+        this.redisService = redisService;
     }
     async create(createPropertyDto, hostId) {
         const newProperty = new this.propertyModel({
             ...createPropertyDto,
             hostId,
         });
-        return newProperty.save();
+        const savedProperty = await newProperty.save();
+        if (createPropertyDto.address && createPropertyDto.address.city) {
+            await this.redisService.delPattern(`search:${createPropertyDto.address.city}:*`);
+        }
+        return savedProperty;
+    }
+    async search(city, guests, checkIn, checkOut, minPrice, maxPrice) {
+        const cacheKey = `search:${city}:${guests}:${checkIn}:${checkOut}:${minPrice}:${maxPrice}`;
+        try {
+            const cachedResult = await this.redisService.get(cacheKey);
+            if (cachedResult) {
+                return cachedResult;
+            }
+        }
+        catch (error) {
+        }
+        const result = await this.findAll({
+            city,
+            guests,
+            checkIn,
+            checkOut,
+            minPrice,
+            maxPrice,
+        });
+        try {
+            await this.redisService.set(cacheKey, result, 300);
+        }
+        catch (error) {
+        }
+        return result;
     }
     async findAll(query) {
         const filter = { isActive: true };
         if (query.city) {
             filter['address.city'] = { $regex: new RegExp(query.city, 'i') };
+        }
+        if (query.guests) {
+            filter.maxGuests = { $gte: parseInt(query.guests, 10) };
+        }
+        if (query.checkIn && query.checkOut) {
+            const checkInDate = new Date(query.checkIn);
+            const checkOutDate = new Date(query.checkOut);
+            const activeReservations = await this.reservationModel.find({
+                status: { $in: ['confirmed', 'pending'] },
+                $or: [
+                    { checkInDate: { $lt: checkOutDate }, checkOutDate: { $gt: checkInDate } }
+                ]
+            }).select('propertyId').exec();
+            const reservedPropertyIds = activeReservations.map(res => res.propertyId);
+            filter._id = { $nin: reservedPropertyIds };
         }
         if (query.lng && query.lat && query.maxDistance) {
             filter.location = {
@@ -48,13 +98,42 @@ let PropertiesService = class PropertiesService {
         return this.propertyModel.find(filter).exec();
     }
     async findOne(id) {
-        const property = await this.propertyModel.findById(id).exec();
-        if (!property)
+        const cacheKey = `property:detail:${id}`;
+        try {
+            const cachedProperty = await this.redisService.get(cacheKey);
+            if (cachedProperty) {
+                return cachedProperty;
+            }
+        }
+        catch (error) {
+        }
+        const property = await this.propertyModel
+            .findById(id)
+            .populate('hostId')
+            .exec();
+        if (!property) {
             throw new common_1.NotFoundException(`Property with ID ${id} not found`);
+        }
+        try {
+            await this.redisService.set(cacheKey, property, 1800);
+        }
+        catch (error) {
+        }
         return property;
     }
     async findByHost(hostId) {
         return this.propertyModel.find({ hostId }).exec();
+    }
+    async update(id, updateData) {
+        const updatedProperty = await this.propertyModel
+            .findByIdAndUpdate(id, updateData, { new: true })
+            .exec();
+        if (!updatedProperty) {
+            throw new common_1.NotFoundException(`Property with ID ${id} not found`);
+        }
+        await this.redisService.del(`property:detail:${id}`);
+        await this.redisService.delPattern('search:*');
+        return updatedProperty;
     }
     async remove(id, hostId) {
         const property = await this.findOne(id);
@@ -62,6 +141,8 @@ let PropertiesService = class PropertiesService {
             throw new common_1.NotFoundException('Vous n\'êtes pas le propriétaire de ce logement.');
         }
         await this.propertyModel.findByIdAndDelete(id).exec();
+        await this.redisService.del(`property:detail:${id}`);
+        await this.redisService.delPattern('search:*');
         return { deleted: true };
     }
 };
@@ -69,6 +150,9 @@ exports.PropertiesService = PropertiesService;
 exports.PropertiesService = PropertiesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(property_schema_1.Property.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)(reservation_schema_1.Reservation.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
+        redis_service_1.RedisService])
 ], PropertiesService);
 //# sourceMappingURL=properties.service.js.map

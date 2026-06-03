@@ -12,13 +12,17 @@ const mongoose_1 = require("@nestjs/mongoose");
 const properties_service_1 = require("./properties.service");
 const properties_controller_1 = require("./properties.controller");
 const property_schema_1 = require("./schemas/property.schema");
+const reservation_schema_1 = require("../reservations/schemas/reservation.schema");
 let PropertiesModule = class PropertiesModule {
 };
 exports.PropertiesModule = PropertiesModule;
 exports.PropertiesModule = PropertiesModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: property_schema_1.Property.name, schema: property_schema_1.PropertySchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: property_schema_1.Property.name, schema: property_schema_1.PropertySchema },
+                { name: reservation_schema_1.Reservation.name, schema: reservation_schema_1.ReservationSchema },
+            ]),
         ],
         controllers: [properties_controller_1.PropertiesController],
         providers: [properties_service_1.PropertiesService],

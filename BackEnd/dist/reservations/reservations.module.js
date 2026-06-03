@@ -13,14 +13,18 @@ const reservations_service_1 = require("./reservations.service");
 const reservations_controller_1 = require("./reservations.controller");
 const reservation_schema_1 = require("./schemas/reservation.schema");
 const properties_module_1 = require("../properties/properties.module");
+const auth_module_1 = require("../auth/auth.module");
+const bookings_module_1 = require("../bookings/bookings.module");
 let ReservationsModule = class ReservationsModule {
 };
 exports.ReservationsModule = ReservationsModule;
 exports.ReservationsModule = ReservationsModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            auth_module_1.AuthModule,
             mongoose_1.MongooseModule.forFeature([{ name: reservation_schema_1.Reservation.name, schema: reservation_schema_1.ReservationSchema }]),
             properties_module_1.PropertiesModule,
+            bookings_module_1.BookingsModule,
         ],
         controllers: [reservations_controller_1.ReservationsController],
         providers: [reservations_service_1.ReservationsService],

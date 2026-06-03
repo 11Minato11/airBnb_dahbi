@@ -22,6 +22,7 @@ let GoogleStrategy = class GoogleStrategy extends (0, passport_1.PassportStrateg
             clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'TON_GOOGLE_CLIENT_SECRET',
             callbackURL: 'http://localhost:3000/auth/google/callback',
             scope: ['email', 'profile'],
+            state: false,
         });
         this.usersService = usersService;
     }

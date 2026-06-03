@@ -34,7 +34,7 @@ let AuthController = class AuthController {
     }
     async googleAuthRedirect(req, res) {
         const jwt = await this.authService.googleLogin(req);
-        res.redirect(`http://localhost:4200/login?token=${jwt.access_token}`);
+        res.redirect(`http://localhost:4200/login?token=${encodeURIComponent(jwt.access_token)}`);
     }
     getProfile(req) {
         return req.user;
