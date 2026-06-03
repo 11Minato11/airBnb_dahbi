@@ -16,9 +16,9 @@
           (click)="toggleSearch()"
           class="w-full flex items-center border border-gray-300 rounded-full shadow-sm hover:shadow-md transition-shadow px-1 py-1 text-left"
         >
-          <span class="px-4 text-sm font-semibold text-gray-800 border-r border-gray-200 shrink-0">Où allez-vous&nbsp;?</span>
-          <span class="px-4 text-sm text-gray-400 border-r border-gray-200 shrink-0">N'importe quand</span>
-          <span class="px-4 text-sm text-gray-400 flex-1">Voyageurs</span>
+          <span class="px-4 text-sm font-semibold text-gray-800 border-r border-gray-200 shrink-0">{{ searchCity || 'Où allez-vous&nbsp;?' }}</span>
+          <span class="px-4 text-sm text-gray-500 border-r border-gray-200 shrink-0">{{ formatDateRange() }}</span>
+          <span class="px-4 text-sm text-gray-500 flex-1">{{ searchGuests > 0 ? searchGuests + ' voyageurs' : 'Voyageurs' }}</span>
           <span class="bg-brand rounded-full p-2 flex-shrink-0">
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -28,19 +28,88 @@
 
         <!-- Dropdown recherche -->
         <div *ngIf="isSearchOpen"
-          class="absolute top-full mt-3 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50">
-          <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Destinations populaires</p>
-          <div class="grid grid-cols-3 gap-2 mb-4">
-            <button *ngFor="let city of ['Marrakech', 'Agadir', 'Casablanca', 'Fès', 'Chefchaouen', 'Essaouira']"
-              (click)="closeSearch()"
-              routerLink="/"
-              class="flex items-center gap-2 border border-gray-200 rounded-xl p-3 hover:border-gray-400 hover:bg-gray-50 transition text-left"
-            >
-              <span class="text-xl">🇲🇦</span>
-              <span class="text-sm font-medium text-gray-700">{{ city }}</span>
-            </button>
+          class="absolute top-full mt-3 left-0 right-0 bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 z-50 min-w-[320px] md:w-[480px]">
+          <div class="space-y-5">
+            
+            <!-- Destination -->
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Destination</label>
+              <input 
+                type="text" 
+                [(ngModel)]="searchCityTemp" 
+                placeholder="Entrez une ville (ex: Marrakech)" 
+                class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand"
+              />
+              
+              <!-- Destinations populaires -->
+              <div class="grid grid-cols-3 gap-2 mt-2.5">
+                <button *ngFor="let city of ['Marrakech', 'Agadir', 'Casablanca', 'Fès', 'Chefchaouen', 'Essaouira']"
+                  type="button"
+                  (click)="selectPopularCity(city)"
+                  class="flex items-center justify-center gap-1.5 border border-gray-200 rounded-lg p-2 hover:border-gray-400 hover:bg-gray-50 transition text-center cursor-pointer"
+                  [class.border-brand]="searchCityTemp === city"
+                  [class.bg-rose-50/50]="searchCityTemp === city"
+                >
+                  <span class="text-xs font-semibold text-gray-700">{{ city }}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dates -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Arrivée</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="checkInTemp" 
+                  class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Départ</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="checkOutTemp" 
+                  class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-brand"
+                />
+              </div>
+            </div>
+
+            <!-- Voyageurs -->
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">Voyageurs</label>
+              <div class="flex items-center justify-between border border-gray-300 rounded-xl px-3 py-2">
+                <span class="text-sm text-gray-600">Nombre de personnes</span>
+                <div class="flex items-center gap-3">
+                  <button 
+                    type="button"
+                    (click)="guestsTemp = guestsTemp > 0 ? guestsTemp - 1 : 0" 
+                    [disabled]="guestsTemp <= 0"
+                    class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full text-gray-600 hover:border-gray-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                  >-</button>
+                  <span class="text-sm font-semibold w-4 text-center">{{ guestsTemp }}</span>
+                  <button 
+                    type="button"
+                    (click)="guestsTemp = guestsTemp + 1" 
+                    class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full text-gray-600 hover:border-gray-500 cursor-pointer"
+                  >+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="flex items-center justify-between pt-3 border-t border-gray-100">
+              <button type="button" (click)="closeSearch()" class="text-sm text-gray-500 hover:text-gray-700 underline cursor-pointer">Fermer</button>
+              <button 
+                type="button" 
+                (click)="search()" 
+                class="bg-brand text-white text-sm font-bold px-6 py-2.5 rounded-full hover:bg-rose-600 transition cursor-pointer"
+              >
+                Rechercher
+              </button>
+            </div>
+
           </div>
-          <button (click)="closeSearch()" class="text-sm text-gray-500 hover:text-gray-700 underline">Fermer</button>
         </div>
       </div>
 
@@ -58,6 +127,17 @@
           <a routerLink="/create-property"
             class="text-sm font-semibold text-gray-700 hover:underline transition px-3 py-2 hidden lg:block whitespace-nowrap">
             + Créer une annonce
+          </a>
+          <a routerLink="/messages"
+            class="relative text-sm font-semibold text-gray-700 hover:underline transition px-3 py-2 hidden sm:block whitespace-nowrap">
+            <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+            Messages
+            <span *ngIf="unreadCount > 0"
+                  class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </span>
           </a>
           <!-- Avatar cliquable → Dashboard -->
           <a routerLink="/dashboard"

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -23,8 +23,24 @@ export class AuthService {
     localStorage.setItem(this.TOKEN_KEY, token);
   }
 
+  saveSession(accessToken: string, user?: any): void {
+    this.setToken(accessToken);
+    if (user) {
+      this.setUser(user);
+    }
+  }
+
   setUser(user: any): void {
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  }
+
+  fetchProfile(): Observable<any> {
+    return this.http.get(`${this.API}/profile`).pipe(
+      tap((profile) => {
+        const stored = this.getUser() || {};
+        this.setUser({ ...stored, ...profile });
+      })
+    );
   }
 
   getToken(): string | null {
@@ -43,7 +59,13 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    const token = this.getToken();
+    return !!token && token.split('.').length === 3;
+  }
+
+  getAuthHeaders(): Record<string, string> {
+    const token = this.getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
   logout(): void {

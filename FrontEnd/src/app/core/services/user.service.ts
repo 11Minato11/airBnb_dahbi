@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Property } from './property.service';
+import { AuthService } from '../auth/auth.service';
 
 export interface Reservation {
   _id: string;
@@ -23,6 +24,7 @@ export interface Review {
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private http = inject(HttpClient);
+  private authService = inject(AuthService);
   private readonly BASE = 'http://localhost:3000';
 
   getMyListings(): Observable<Property[]> {
@@ -42,7 +44,9 @@ export class UserService {
   }
 
   createReservation(data: { propertyId: string; checkInDate: string; checkOutDate: string; totalPrice: number }): Observable<any> {
-    return this.http.post(`${this.BASE}/reservations`, data);
+    return this.http.post(`${this.BASE}/reservations`, data, {
+      headers: new HttpHeaders(this.authService.getAuthHeaders()),
+    });
   }
 
   createReview(data: { propertyId: string; rating: number; comment: string }): Observable<any> {

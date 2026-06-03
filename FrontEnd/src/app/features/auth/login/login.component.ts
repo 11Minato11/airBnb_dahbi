@@ -27,10 +27,21 @@ export class LoginComponent {
     this.route.queryParams.subscribe(params => {
       const token = params['token'];
       if (token) {
-        this.authService.setToken(token);
-        this.router.navigate(['/']);
+        this.authService.setToken(decodeURIComponent(token));
+        this.authService.fetchProfile().subscribe({
+          next: () => this.navigateAfterLogin(),
+          error: () => {
+            this.authService.clearToken();
+            this.errorMessage = 'Session Google invalide. Veuillez réessayer.';
+          }
+        });
       }
     });
+  }
+
+  private navigateAfterLogin(): void {
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.router.navigateByUrl(returnUrl);
   }
 
   onSubmit() {
@@ -39,8 +50,8 @@ export class LoginComponent {
       const { email, password } = this.loginForm.value;
       this.authService.login(email!, password!).subscribe({
         next: (res: any) => {
-          this.authService.setToken(res.access_token);
-          this.router.navigate(['/']);
+          this.authService.saveSession(res.access_token, res.user);
+          this.navigateAfterLogin();
         },
         error: (err: any) => {
           console.error('Login error', err);

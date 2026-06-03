@@ -36,7 +36,7 @@ export class AuthController {
   @UseGuards(GoogleOauthGuard)
   async googleAuthRedirect(@Request() req: any, @Res() res: Response) {
     const jwt = await this.authService.googleLogin(req);
-    res.redirect(`http://localhost:4200/login?token=${jwt.access_token}`);
+    res.redirect(`http://localhost:4200/login?token=${encodeURIComponent(jwt.access_token)}`);
   }
 
   // Route protégée pour obtenir le profil

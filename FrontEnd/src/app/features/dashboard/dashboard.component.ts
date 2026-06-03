@@ -78,7 +78,12 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  deleteListing(id: string, title: string) {
+  goToProperty(id: string) {
+    this.router.navigate(['/properties', id]);
+  }
+
+  deleteListing(id: string, title: string, event?: Event) {
+    event?.stopPropagation();
     if (!confirm(`Supprimer "${title}" ?`)) return;
     this.userService.deleteListing(id).subscribe({
       next: () => {

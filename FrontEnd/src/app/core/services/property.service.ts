@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 export interface Property {
   _id: string;
+  hostId: string;
   title: string;
   description: string;
   pricePerNight: number;
@@ -25,8 +26,8 @@ export class PropertyService {
   private http = inject(HttpClient);
   private apiUrl = 'http://localhost:3000/properties';
 
-  getProperties(): Observable<Property[]> {
-    return this.http.get<Property[]>(this.apiUrl);
+  getProperties(params?: any): Observable<Property[]> {
+    return this.http.get<Property[]>(this.apiUrl, { params });
   }
 
   getProperty(id: string): Observable<Property> {

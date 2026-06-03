@@ -3,10 +3,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { PropertiesService } from './properties.service';
 import { PropertiesController } from './properties.controller';
 import { Property, PropertySchema } from './schemas/property.schema';
+import { Reservation, ReservationSchema } from '../reservations/schemas/reservation.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Property.name, schema: PropertySchema }]),
+    MongooseModule.forFeature([
+      { name: Property.name, schema: PropertySchema },
+      { name: Reservation.name, schema: ReservationSchema },
+    ]),
   ],
   controllers: [PropertiesController],
   providers: [PropertiesService],

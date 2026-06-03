@@ -36,6 +36,30 @@
 <!-- Contenu principal -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+  <!-- Message de recherche active -->
+  <div *ngIf="searchQuery() || checkInQuery() || checkOutQuery() || guestsQuery() > 0" class="mb-6 flex flex-wrap items-center gap-2">
+    <span class="text-sm text-gray-600">Filtres de recherche :</span>
+    
+    <!-- Ville -->
+    <span *ngIf="searchQuery()" class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 text-sm font-medium px-3.5 py-1 rounded-full">
+      📍 {{ searchQuery() }}
+    </span>
+
+    <!-- Dates -->
+    <span *ngIf="checkInQuery() || checkOutQuery()" class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 text-sm font-medium px-3.5 py-1 rounded-full">
+      📅 {{ checkInQuery() || '?' }} au {{ checkOutQuery() || '?' }}
+    </span>
+
+    <!-- Voyageurs -->
+    <span *ngIf="guestsQuery() > 0" class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 text-sm font-medium px-3.5 py-1 rounded-full">
+      👥 {{ guestsQuery() }} voyageurs
+    </span>
+
+    <button (click)="setCategory(null)" class="text-sm text-brand font-bold hover:underline hover:text-rose-600 ml-2 cursor-pointer">
+      Effacer tout
+    </button>
+  </div>
+
   <!-- Skeleton loader -->
   <div *ngIf="isLoading()" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
     <div *ngFor="let _ of [1,2,3,4,5,6,7,8]" class="animate-pulse">
@@ -49,8 +73,8 @@
   <!-- État vide -->
   <div *ngIf="!isLoading() && properties.length === 0" class="flex flex-col items-center justify-center py-24 text-center">
     <span class="text-6xl mb-4">🔍</span>
-    <h3 class="text-xl font-bold text-gray-800 mb-2">Aucun logement pour cette catégorie</h3>
-    <p class="text-gray-500 max-w-sm mb-6">Essayez une autre catégorie ou revenez à la liste complète.</p>
+    <h3 class="text-xl font-bold text-gray-800 mb-2">Aucun logement trouvé</h3>
+    <p class="text-gray-500 max-w-sm mb-6">Essayez d'autres critères de recherche ou réinitialisez les filtres.</p>
     <button (click)="setCategory(null)" class="bg-brand text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-rose-600 transition">
       Voir tous les logements
     </button>

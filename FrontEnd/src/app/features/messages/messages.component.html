@@ -1,0 +1,111 @@
+<div class="flex h-[calc(100vh-64px)] bg-gray-50">
+
+  <!-- Sidebar: Liste des conversations -->
+  <div class="w-80 border-r border-gray-200 bg-white flex flex-col">
+    <div class="p-4 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-900">Messages</h2>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+      <div *ngIf="isLoading()" class="p-4 text-center text-gray-500">Chargement...</div>
+
+      <div *ngIf="!isLoading() && conversations().length === 0" class="p-6 text-center text-gray-400">
+        <p class="text-lg">Aucune conversation</p>
+        <p class="text-sm mt-1">Contactez un hôte depuis une annonce</p>
+      </div>
+
+      <div *ngFor="let conv of conversations()"
+           (click)="selectConversation(conv)"
+           class="p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition"
+           [class.bg-blue-50]="selectedConversation()?._id === conv._id">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-sm flex-shrink-0">
+            {{ getOtherName(conv).charAt(0) }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-center">
+              <p class="font-semibold text-gray-900 text-sm truncate">{{ getOtherName(conv) }}</p>
+              <span class="text-xs text-gray-400 flex-shrink-0 ml-2">{{ getTimeAgo(conv.lastMessageAt) }}</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-0.5 truncate">{{ getPropertyTitle(conv) }}</p>
+            <div class="flex items-center justify-between mt-1">
+              <p class="text-sm text-gray-500 truncate">{{ conv.lastMessage || 'Aucun message' }}</p>
+              <span *ngIf="conv.unreadCount > 0"
+                    class="ml-2 bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                {{ conv.unreadCount }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone de chat -->
+  <div class="flex-1 flex flex-col">
+    <div *ngIf="!selectedConversation()" class="flex-1 flex items-center justify-center text-gray-400">
+      <p class="text-lg">Sélectionnez une conversation</p>
+    </div>
+
+    <ng-container *ngIf="selectedConversation() as conv">
+      <!-- Header du chat -->
+      <div class="p-4 border-b border-gray-200 bg-white flex items-center gap-3">
+        <button (click)="goBack()" class="md:hidden text-gray-500 hover:text-gray-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold text-sm">
+          {{ getOtherName(conv).charAt(0) }}
+        </div>
+        <div>
+          <p class="font-semibold text-gray-900">{{ getOtherName(conv) }}</p>
+          <p class="text-xs text-gray-500">{{ getPropertyTitle(conv) }}</p>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div #messagesContainer class="flex-1 overflow-y-auto p-4 space-y-4">
+        <div *ngFor="let msg of messages()"
+             class="flex"
+             [class.justify-end]="isMine(msg)"
+             [class.justify-start]="!isMine(msg)">
+          <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-2xl"
+               [class.bg-rose-500]="isMine(msg)"
+               [class.text-white]="isMine(msg)"
+               [class.bg-gray-200]="!isMine(msg)"
+               [class.text-gray-900]="!isMine(msg)">
+            <p class="text-sm">{{ msg.content }}</p>
+            <p class="text-[10px] mt-1 opacity-70">
+              {{ getTimeAgo(msg.createdAt) }}
+            </p>
+          </div>
+        </div>
+
+        <div *ngIf="messages().length === 0" class="text-center text-gray-400 py-8">
+          <p>Envoyez le premier message !</p>
+        </div>
+      </div>
+
+      <!-- Barre d'envoi -->
+      <div class="p-4 border-t border-gray-200 bg-white">
+        <form (ngSubmit)="sendMessage()" class="flex gap-2">
+          <input type="text"
+                 [ngModel]="newMessage()"
+                 (ngModelChange)="newMessage.set($event)"
+                 name="message"
+                 placeholder="Écrivez votre message..."
+                 class="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm"
+                 [disabled]="isSending()">
+          <button type="submit"
+                  [disabled]="!newMessage() || isSending()"
+                  class="px-6 py-2 bg-rose-500 text-white rounded-full font-medium text-sm hover:bg-rose-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </ng-container>
+  </div>
+</div>

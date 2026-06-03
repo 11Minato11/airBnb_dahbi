@@ -35,7 +35,15 @@ export class RegisterComponent {
         email: v.email!,
         password: v.password!
       }).subscribe({
-        next: () => this.router.navigate(['/login']),
+        next: () => {
+          this.authService.login(v.email!, v.password!).subscribe({
+            next: (res: any) => {
+              this.authService.saveSession(res.access_token, res.user);
+              this.router.navigate(['/']);
+            },
+            error: () => this.router.navigate(['/login']),
+          });
+        },
         error: (err: any) => {
           console.error('Registration error', err);
           if (err.status === 409) {

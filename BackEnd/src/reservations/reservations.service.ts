@@ -4,44 +4,32 @@ import { Model } from 'mongoose';
 import { Reservation, ReservationDocument } from './schemas/reservation.schema';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { PropertiesService } from '../properties/properties.service';
+import { BookingsService } from '../bookings/bookings.service';
 
 @Injectable()
 export class ReservationsService {
   constructor(
     @InjectModel(Reservation.name) private reservationModel: Model<ReservationDocument>,
     private propertiesService: PropertiesService,
+    private bookingsService: BookingsService,
   ) {}
 
   async create(createReservationDto: CreateReservationDto, guestId: string): Promise<ReservationDocument> {
-    const { propertyId, checkInDate, checkOutDate } = createReservationDto;
+    const { propertyId, checkInDate, checkOutDate, totalPrice } = createReservationDto;
 
     // 1. Vérifier si la propriété existe
     await this.propertiesService.findOne(propertyId);
 
-    const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkOutDate);
-
-    // 2. Vérifier la disponibilité (chevauchement de dates)
-    const overlappingReservation = await this.reservationModel.findOne({
+    // 2. Utiliser BookingsService avec validation complète (dates exactes, chevauchement, Redis)
+    const booking = await this.bookingsService.createBooking(
       propertyId,
-      status: 'confirmed',
-      $or: [
-        { checkInDate: { $lt: checkOut }, checkOutDate: { $gt: checkIn } },
-      ],
-    }).exec();
-
-    if (overlappingReservation) {
-      throw new ConflictException('Le logement est indisponible pour ces dates.');
-    }
-
-    // 3. Créer la réservation
-    const newReservation = new this.reservationModel({
-      ...createReservationDto,
       guestId,
-      checkInDate: checkIn,
-      checkOutDate: checkOut,
-    });
-    return newReservation.save();
+      new Date(checkInDate),
+      new Date(checkOutDate),
+      totalPrice || 0,
+    );
+
+    return booking;
   }
 
   async findMyTrips(guestId: string): Promise<ReservationDocument[]> {
